@@ -19,17 +19,20 @@ from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework.routers import SimpleRouter
 
-# from category.views import CategoryViewSet
-# from product.views import ProductViewSet
+from category.views import CategoryViewSet
+from hotels.views import HotelViewSet
+from city.views import CityViewSet
+
 
 router = SimpleRouter()                                              #МАРШРУТИЗАТОР
-# router.register('categories',CategoryViewSet)                       #СОЗДАЕТ ПУТЬ ДЛЯ КАТЕГОРИИ
-# router.register('products',ProductViewSet)
+router.register('categories',CategoryViewSet)                       #СОЗДАЕТ ПУТЬ ДЛЯ КАТЕГОРИИ
+router.register('cities',CityViewSet)
+router.register('hotels',HotelViewSet)
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('api/v1/',include(router.urls)),                             ####
+    path('api/v1/',include(router.urls)),                             ####
     path('api/v1/accounts/', include('account.urls')),
     # path('api/v1/orders/',include('order.urls')),
 ]

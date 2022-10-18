@@ -1,5 +1,5 @@
 from django.db import models
-from product.models import Product
+from hotels.models import Hotel
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -15,7 +15,7 @@ class Mark:
 
 
 class Review(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    product = models.ForeignKey(Hotel, on_delete=models.CASCADE, related_name='reviews')
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     rating = models.PositiveSmallIntegerField(choices=Mark.marks)
     text = models.TextField(blank=True)

@@ -1,27 +1,47 @@
-from django.db import models
+from rest_framework import permissions,response
+from rest_framework.decorators import action
+from rest_framework.viewsets import ModelViewSet
 
-from category.models import Category
-from django.contrib.auth import get_user_model
+from rating.serializers import ReviewSerializer
+# Create your views here.
 
-User = get_user_model()
-
-
-# Create your models here.
-
-class Hotel(models.Model):
-    owner = models.ForeignKey(User, on_delete= models.RESTRICT,
-                              related_name= 'products')
-    title = models.CharField(max_length=100)
-    description = models.TextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.ForeignKey(Category,
-                                 on_delete=models.SET_NULL,null=True,   # КОГДА УДАЛИМ КАТЕГОРИЮ НЕ УДАЛЯЕТСЯ ПРОДУКТ
-                                 related_name='products')               # ЗА МЕСТУ КАТЕГОРИИ СТОИТ null
-    images = models.ImageField(upload_to ='images')
-
-    class Meta:
-        ordering = ['title']
+from .models import Hotel
+from . import serializers
+from .permissions import IsAuthor
 
 
-    def __str__(self):
-        return self.title
+class HotelViewSet(ModelViewSet):
+    queryset = Hotel.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return serializers.HotelListSerializer
+        return serializers.HotelDetailSerializer
+
+    def get_permissions(self):
+        if self.action in ('update','partial_update','destroy'):
+            return [permissions.IsAuthenticated(),IsAuthor()]
+        return [permissions.IsAuthenticatedOrReadOnly()]
+
+    def perform_create(self, serializer):
+        serializer.save(owner =self.request.user)
+
+    @action(['GET', 'POST'], detail=True)
+    def reviews(self, request, pk):
+        product = self.get_object()
+        if request.method == 'GET':
+           reviews = product.reviews.all()
+           serializer = ReviewSerializer(reviews, many=True)
+           return response.Response(serializer.data, status=200)
+
+        if product.reviews.filter(owner=request.user).exists():
+            return response.Response('Вы уже оставляли отзыв', status=400)
+        data = request.data
+        serializer = ReviewSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(owner=request.user, product=product)
+        return response.Response(serializer.data, status=201)
+
+
+
+

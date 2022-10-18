@@ -3,6 +3,8 @@ from django.db import models
 from category.models import Category
 from django.contrib.auth import get_user_model
 
+from city.models import City
+
 User = get_user_model()
 
 
@@ -18,7 +20,7 @@ class Hotel(models.Model):
                                  on_delete=models.SET_NULL,null=True,   # КОГДА УДАЛИМ КАТЕГОРИЮ НЕ УДАЛЯЕТСЯ ПРОДУКТ
                                  related_name='products')               # ЗА МЕСТУ КАТЕГОРИИ СТОИТ null
     images = models.ImageField(upload_to ='images')
-
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, related_name='products', null=True)
     class Meta:
         ordering = ['title']
 

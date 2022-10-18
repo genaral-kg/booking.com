@@ -52,10 +52,11 @@ INSTALLED_APPS = [
 
     # my_apps
     'account',
-    # 'category',
+    'category',
     # 'order',
-    # 'product',
-    # 'rating',
+    'hotels',
+    'rating',
+    'city',
 ]
 
 MIDDLEWARE = [
